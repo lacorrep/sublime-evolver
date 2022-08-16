@@ -1,0 +1,99 @@
+%YAML 1.2
+---
+name: Evolver
+file_extensions: [fe,dmp]
+scope: source.fe
+
+# https://www.sublimetext.com/docs/3/syntax.html
+# https://www.sublimetext.com/docs/syntax.html
+# https://github.com/sublimehq/Packages -- Syntax files examples
+# https://www.sublimetext.com/docs/3/scope_naming.html
+berry
+variables:
+  control_keywords: 'if|then|else|foreach|for|while|(un)?set|(un)?fix|list|do|where'
+  # keyword_commands:'define|dump'
+  other_keywords: 'and|or|no_refine|scalar_integrand|original|sprintf|printf?|new_edge|define|quantity|QUANTITY|parameters?|PARAMETERS?|view_matrix|VIEW_MATRIX|attribute|boundary|constraint|CONSTRAINT|formula|method|boundary|dump'
+  function_names: 'abs|sqr|sqrt|a?cos|a?sin|a?tan|atan2|log|exp|pow|ceil|floor|min(imum)?|max(imum)?|read'
+  single_letter_commands: 'g\s?[0-9]+|r|U|u|s|q|j' # I tried adding "x" but it did not work
+  reserved_variable_names : 'console_title|slice_coeff|datafilename|vertex_count|modulus|edge_count|facet_count|x1|x2|x3|x4|x5|x6|X1|X2|X3|X4|X5|X6|pi|scale|bare|fixed|global'
+  color : 'black|blue|brown|clear|cyan|darkgray|green|lightblue|lightcyan|lightgray|lightgreen|lightmagenta|lightred|magenta|red|white|yellow'
+  basic_types: 'color|energy|element_modulus|real|body|bodies|edges?|vertex|vertices|facet?s?|'
+  vertex_attribute: 'id|original|coordinates|x|y|z|__x|vertex edges|vertex facets|valence|bare|fixed|constraints|on_constraint|hit_constraint|value_of_constraint|v_constraint_list|constraint normal|boundary|parameter values|p1|p2|p|on_boundary|v_boundary|on_quantity|on_method_instance|v_method_list|vertex_normal|dihedral|mean_curvature|square mean curvature|mid_edge|mid_facet|axial_point|triple_point|tetra_point|v_force|v_velocity|raw_velocity|v_oldx|surface'
+  edge_attributes: 'id|oid|length|original|length|density|tension|fixed|vertices|midv|facets|valence|bare|constraints|on_constraint|e_constraint_list|boundary|on_boundary|e_boundary|color|edge_vector|x|y|z|no_refine|no_transform|wrap|wrap_list|show|orientation|frontbody|backbody|dihedral|noncontent|quantities|on_quantity|on_method_instance|e_method_list'
+  face_attributes: 'id|oid|original|density|tension|area|fixed|vertices|edges|bodies|frontbody|backbody|f_body_list|valence|constraints|on_constraint|f_constraint_list|boundary|on_boundary|f_boundary|color|frontcolor|backcolor|opacity|facet_normal|x|y|z|no_display|no_refine|no_transform|orientation|noncontent|phase|quantities|on_quantity|on_method_instance|f_method_list|f_next_vfacet|f_next_bfacet|surface'
+  body_attributes: 'id|original|facets|density|volume|target|volfixed|volconst|actual_volume|pressure|phase|centerofmass'
+
+contexts:
+  main:
+    # Strings begin and end with quotes, and use backslashes as an escape character
+    - match: '"'
+      scope: punctuation.definition.string.begin.fe
+      push: double_quoted_string
+
+    # Comments begin with a '//' and finish at the end of the line
+    - match: '//'
+      scope: punctuation.definition.comment.fe
+      push: line_comment
+
+    # Keywords are if, else for and while.
+    # Note that blackslashes don't need to be escaped within single quoted strings
+    # in YAML. When using single quoted strings, only single quotes need to be
+    # escaped: this is done by using two single quotes next to each other.
+    - match: \b({{control_keywords}})\b
+      scope: keyword.control.fe
+
+    - match: \b({{function_names}}|{{single_letter_commands}})\b
+      scope: entity.name.function.fe
+
+    # Reserved variables (this, self, super)
+    - match: \b({{reserved_variable_names}}|{{color}})\b
+      scope: variable.language.fe
+
+    - match: \.({{vertex_attribute}}|{{edge_attributes}}|{{face_attributes}}|{{body_attributes}})\b
+      scope: entity.other.attribute-name.fe
+
+    - match: /\*
+      push: block_comment
+
+    # Operators
+    - match: \+\=|\-\=|:=
+      scope: keyword.operator.assignment.fe
+    - match: \+|\-|\*|/|%|imod|idiv|\^|\*\* # "mod" would get highlighted in "element_modulus"
+      scope: keyword.operator.arithmetic.fe
+    - match: <\=?|>\=?|\=\=|!\=
+      scope: keyword.operator.comparison.fe
+    - match: <<|>>
+      scope: keyword.operator.arithmetic.fe
+    - match: <<|>>|&&|\|\|
+      scope: keyword.operator.logical.fe
+
+    - match: \b({{other_keywords}})\b
+      scope: keyword.other.fe
+
+    - match: \b({{basic_types}})\b
+      scope: storage.type.fe
+
+    # Numbers
+    - match: '\b(-)?[0-9]+\.?[0-9]*(e[+-]?[0-9]+)?\.?'
+      scope: constant.numeric.fe
+
+    #- match: ({{single_letter_commands}});?
+    #  scope: entity.name.function.fe
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.fe
+    - match: '\\.'
+      scope: constant.character.escape.fe
+    - match: '"'
+      scope: punctuation.definition.string.end.fe
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.fe
+    - match: $
+      pop: true
+
+  block_comment:
+    - meta_scope: comment.block.fe
+    - match: \*/
+      pop: true

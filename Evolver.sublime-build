@@ -1,0 +1,7 @@
+{
+	// Make sure that Evolver.exe is in your path or write the full path below
+	// "cmd": ["path/to/Evolver.exe", "-q", "-p8", "$file"],
+	"shell_cmd": "Evolver-2.70.exe -q -p8 $file",
+	"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+	"selector": "source.fe",
+}
