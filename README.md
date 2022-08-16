@@ -1,5 +1,5 @@
-# Evolver scripting language
-Partial support of Ken Brakke's Evolver language for Sublime Text (build 4126).
+# Evolver scripting language for Sublime Text 3
+Partial support of Ken Brakke's Evolver language for Sublime Text 3 (build 4126).
 * syntax highlight
 * build command
 * some completions
