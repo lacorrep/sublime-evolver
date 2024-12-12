@@ -2,22 +2,21 @@
 ---
 name: Evolver
 file_extensions: [fe,dmp]
-scope: source.fe
+scope: source.evolver
 
 # https://www.sublimetext.com/docs/3/syntax.html
 # https://www.sublimetext.com/docs/syntax.html
 # https://github.com/sublimehq/Packages -- Syntax files examples
 # https://www.sublimetext.com/docs/3/scope_naming.html
-berry
+
 variables:
-  control_keywords: 'if|then|else|foreach|for|while|(un)?set|(un)?fix|list|do|where'
-  # keyword_commands:'define|dump'
+  control_keywords: 'if|then|else|foreach|for|while|(un)?set|(un)?fix|list|do|where|local'
   other_keywords: 'and|or|no_refine|scalar_integrand|original|sprintf|printf?|new_edge|define|quantity|QUANTITY|parameters?|PARAMETERS?|view_matrix|VIEW_MATRIX|attribute|boundary|constraint|CONSTRAINT|formula|method|boundary|dump'
   function_names: 'abs|sqr|sqrt|a?cos|a?sin|a?tan|atan2|log|exp|pow|ceil|floor|min(imum)?|max(imum)?|read'
-  single_letter_commands: 'g\s?[0-9]+|r|U|u|s|q|j' # I tried adding "x" but it did not work
-  reserved_variable_names : 'console_title|slice_coeff|datafilename|vertex_count|modulus|edge_count|facet_count|x1|x2|x3|x4|x5|x6|X1|X2|X3|X4|X5|X6|pi|scale|bare|fixed|global'
+  single_letter_commands: 'g|r|U|u|s|q|j' # I tried adding "x" but it did not work
+  reserved_variable_names : 'console_title|slice_coeff|datafilename|vertex_count|edge_count|facet_count|x1|x2|x3|x4|x5|x6|X1|X2|X3|X4|X5|X6|pi|scale|bare|fixed|global'
   color : 'black|blue|brown|clear|cyan|darkgray|green|lightblue|lightcyan|lightgray|lightgreen|lightmagenta|lightred|magenta|red|white|yellow'
-  basic_types: 'color|energy|element_modulus|real|body|bodies|edges?|vertex|vertices|facet?s?|'
+  basic_types: 'color|energy|modulus|element_modulus|real|body|bodies|edges?|vertex|vertices|facet?s?|'
   vertex_attribute: 'id|original|coordinates|x|y|z|__x|vertex edges|vertex facets|valence|bare|fixed|constraints|on_constraint|hit_constraint|value_of_constraint|v_constraint_list|constraint normal|boundary|parameter values|p1|p2|p|on_boundary|v_boundary|on_quantity|on_method_instance|v_method_list|vertex_normal|dihedral|mean_curvature|square mean curvature|mid_edge|mid_facet|axial_point|triple_point|tetra_point|v_force|v_velocity|raw_velocity|v_oldx|surface'
   edge_attributes: 'id|oid|length|original|length|density|tension|fixed|vertices|midv|facets|valence|bare|constraints|on_constraint|e_constraint_list|boundary|on_boundary|e_boundary|color|edge_vector|x|y|z|no_refine|no_transform|wrap|wrap_list|show|orientation|frontbody|backbody|dihedral|noncontent|quantities|on_quantity|on_method_instance|e_method_list'
   face_attributes: 'id|oid|original|density|tension|area|fixed|vertices|edges|bodies|frontbody|backbody|f_body_list|valence|constraints|on_constraint|f_constraint_list|boundary|on_boundary|f_boundary|color|frontcolor|backcolor|opacity|facet_normal|x|y|z|no_display|no_refine|no_transform|orientation|noncontent|phase|quantities|on_quantity|on_method_instance|f_method_list|f_next_vfacet|f_next_bfacet|surface'
@@ -27,12 +26,12 @@ contexts:
   main:
     # Strings begin and end with quotes, and use backslashes as an escape character
     - match: '"'
-      scope: punctuation.definition.string.begin.fe
+      scope: punctuation.definition.string.begin.evolver
       push: double_quoted_string
 
     # Comments begin with a '//' and finish at the end of the line
     - match: '//'
-      scope: punctuation.definition.comment.fe
+      scope: punctuation.definition.comment.evolver
       push: line_comment
 
     # Keywords are if, else for and while.
@@ -40,60 +39,80 @@ contexts:
     # in YAML. When using single quoted strings, only single quotes need to be
     # escaped: this is done by using two single quotes next to each other.
     - match: \b({{control_keywords}})\b
-      scope: keyword.control.fe
+      scope: keyword.control.evolver
 
-    - match: \b({{function_names}}|{{single_letter_commands}})\b
-      scope: entity.name.function.fe
+    - match: \b({{function_names}})\b
+      scope: variable.function.evolver
+    - match: \b({{single_letter_commands}})\b
+      scope: entity.name.function.evolver
 
     # Reserved variables (this, self, super)
     - match: \b({{reserved_variable_names}}|{{color}})\b
-      scope: variable.language.fe
+      scope: variable.language.evolver
 
     - match: \.({{vertex_attribute}}|{{edge_attributes}}|{{face_attributes}}|{{body_attributes}})\b
-      scope: entity.other.attribute-name.fe
+      captures:
+        1: entity.other.attribute-name.evolver
 
     - match: /\*
       push: block_comment
 
     # Operators
     - match: \+\=|\-\=|:=
-      scope: keyword.operator.assignment.fe
-    - match: \+|\-|\*|/|%|imod|idiv|\^|\*\* # "mod" would get highlighted in "element_modulus"
-      scope: keyword.operator.arithmetic.fe
+      scope: keyword.operator.assignment.evolver
+    - match: \+|\-|\*|/|%|\^|\*\*|\b(i?mod|idiv)\b
+      # without \b\b, "mod" would get highlighted in "element_modulus"
+      scope: keyword.operator.arithmetic.evolver
     - match: <\=?|>\=?|\=\=|!\=
-      scope: keyword.operator.comparison.fe
+      scope: keyword.operator.comparison.evolver
     - match: <<|>>
-      scope: keyword.operator.arithmetic.fe
+      scope: keyword.operator.arithmetic.evolver
     - match: <<|>>|&&|\|\|
-      scope: keyword.operator.logical.fe
+      scope: keyword.operator.logical.evolver
 
     - match: \b({{other_keywords}})\b
-      scope: keyword.other.fe
+      scope: keyword.other.evolver
 
     - match: \b({{basic_types}})\b
-      scope: storage.type.fe
+      scope: storage.type.evolver
 
     # Numbers
-    - match: '\b(-)?[0-9]+\.?[0-9]*(e[+-]?[0-9]+)?\.?'
-      scope: constant.numeric.fe
+    - match: '\b(-)?[0-9]+\.?[0-9]*((e|E)[+-]?[0-9]+)?'
+      scope: constant.numeric.evolver
 
-    #- match: ({{single_letter_commands}});?
-    #  scope: entity.name.function.fe
+    #- match: '\b({{single_letter_commands}})(;|\b|\s)'
+    #  scope: entity.name.function.evolver
+
+
+    # For easier selection and nagivation
+    - match: '\{'
+      scope: punctuation.section.block.end
+    - match: '\}'
+      scope: punctuation.section.block.end
+    - match: '\('
+      scope: punctuation.section.parens.begin
+    - match: '\)'
+      scope: punctuation.section.parens.end
+    - match: '\['
+      scope: punctuation.section.brackets.end
+    - match: '\]'
+      scope: punctuation.section.brackets.end
+
 
   double_quoted_string:
-    - meta_scope: string.quoted.double.fe
+    - meta_scope: string.quoted.double.evolver
     - match: '\\.'
-      scope: constant.character.escape.fe
+      scope: constant.character.escape.evolver
     - match: '"'
-      scope: punctuation.definition.string.end.fe
+      scope: punctuation.definition.string.end.evolver
       pop: true
 
   line_comment:
-    - meta_scope: comment.line.fe
+    - meta_scope: comment.line.evolver
     - match: $
       pop: true
 
   block_comment:
-    - meta_scope: comment.block.fe
+    - meta_scope: comment.block.evolver
     - match: \*/
       pop: true
